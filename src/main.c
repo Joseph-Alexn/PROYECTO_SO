@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include "parser.h"
+#include "executor.h"
 
 #define MAX_BUFFER 1024
-
-void procesar_linea(char *linea);
 
 int main(){
 
 	char buffer[MAX_BUFFER];
+	ComandoParsed cmd;
 	printf("Iniciando ucvsh...\n");
 	while(1){
 		printf("ucvsh> ");
@@ -22,23 +22,18 @@ int main(){
 		buffer[strcspn(buffer, "\n")] = '\0';
 
 		if(strlen(buffer)==0){
-			cotinue;
+			continue;
 		}
 
 		if(strcmp(buffer,"exit")==0){
-			TODO:
 			printf("Saliendo de ucvsh...\n");
 			break;
 		}
 
-		procesar_linea(buffer);
+		parsear_linea(buffer, &cmd);
+
+		ejecutar_comando(&cmd);
 
 	}
 	return 0;
-}
-
-void procesar_linea(char *linea){
-
-printf("[DEBUG] Comando recibido para analizar: '%s'\n", linea);
-
 }
