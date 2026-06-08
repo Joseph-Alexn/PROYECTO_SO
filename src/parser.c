@@ -16,21 +16,21 @@ void parsear_linea(char *linea_cruda, ComandoParsed comandos[], int *total_coman
 
     while (token != NULL && cmd_idx < MAX_COMANDOS_LINEA) {
         if (strcmp(token, "&") == 0) {
-            comandos[cmd_idx].es_background = 1; [cite: 38]
+            comandos[cmd_idx].es_background = 1;
         } 
         else if (strcmp(token, ";") == 0) {
             comandos[cmd_idx].argumentos[arg_idx] = NULL;
-            comandos[cmd_idx].operador_siguiente = OP_SECUENCIAL; [cite: 22]
+            comandos[cmd_idx].operador_siguiente = OP_SECUENCIAL; 
             cmd_idx++;
             arg_idx = 0;
-            comandos[cmd_idx].comando_principal = NULL;
+            comandos[cmd_idx].comando_principal = NULL; 
             comandos[cmd_idx].archivo_redireccion = NULL;
             comandos[cmd_idx].es_background = 0;
             comandos[cmd_idx].operador_siguiente = OP_NINGUNO;
         } 
         else if (strcmp(token, "&&") == 0) {
             comandos[cmd_idx].argumentos[arg_idx] = NULL;
-            comandos[cmd_idx].operador_siguiente = OP_AND; [cite: 23]
+            comandos[cmd_idx].operador_siguiente = OP_AND; 
             cmd_idx++;
             arg_idx = 0;
             comandos[cmd_idx].comando_principal = NULL;
@@ -40,7 +40,7 @@ void parsear_linea(char *linea_cruda, ComandoParsed comandos[], int *total_coman
         } 
         else if (strcmp(token, "||") == 0) {
             comandos[cmd_idx].argumentos[arg_idx] = NULL;
-            comandos[cmd_idx].operador_siguiente = OP_OR; [cite: 24]
+            comandos[cmd_idx].operador_siguiente = OP_OR; 
             cmd_idx++;
             arg_idx = 0;
             comandos[cmd_idx].comando_principal = NULL;
@@ -50,7 +50,7 @@ void parsear_linea(char *linea_cruda, ComandoParsed comandos[], int *total_coman
         } 
         else if (strcmp(token, "|") == 0) {
             comandos[cmd_idx].argumentos[arg_idx] = NULL;
-            comandos[cmd_idx].operador_siguiente = OP_PIPE; [cite: 52]
+            comandos[cmd_idx].operador_siguiente = OP_PIPE;
             cmd_idx++;
             arg_idx = 0;
             comandos[cmd_idx].comando_principal = NULL;
@@ -67,9 +67,9 @@ void parsear_linea(char *linea_cruda, ComandoParsed comandos[], int *total_coman
         else {
             if (arg_idx < MAX_ARGS - 1) {
                 if (arg_idx == 0) {
-                    comandos[cmd_idx].comando_principal = token; [cite: 12]
+                    comandos[cmd_idx].comando_principal = token; 
                 }
-                comandos[cmd_idx].argumentos[arg_idx] = token; [cite: 13]
+                comandos[cmd_idx].argumentos[arg_idx] = token;
                 arg_idx++;
             }
         }

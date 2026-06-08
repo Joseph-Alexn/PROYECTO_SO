@@ -3,6 +3,6 @@
 
 #include "parser.h"
 
-void ejecutar_comando(ComandoParsed *cmd);
+int ejecutar_cadena_comandos(ComandoParsed comandos[], int total_comandos);
 
 #endif

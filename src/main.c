@@ -3,37 +3,46 @@
 #include <string.h>
 #include "parser.h"
 #include "executor.h"
+#include "jobs.h"
 
 #define MAX_BUFFER 1024
 
-int main(){
+int main() {
+    char buffer[MAX_BUFFER];
+    ComandoParsed comandos[MAX_COMANDOS_LINEA];
+    int total_comandos;
 
-	char buffer[MAX_BUFFER];
-	ComandoParsed cmd;
-	printf("Iniciando ucvsh...\n");
-	while(1){
-		printf("ucvsh> ");
-		fflush(stdout);
-		if(fgets(buffer,MAX_BUFFER, stdin)==NULL){
-			printf("\n");
-			break;
-		}
+    inicializar_jobs();
+    printf("Iniciando ucvsh...\n");
 
-		buffer[strcspn(buffer, "\n")] = '\0';
+    while (1) {
+        limpiar_jobs_zombies();
 
-		if(strlen(buffer)==0){
-			continue;
-		}
+        printf("ucvsh> ");
+        fflush(stdout);
 
-		if(strcmp(buffer,"exit")==0){
-			printf("Saliendo de ucvsh...\n");
-			break;
-		}
+        if (fgets(buffer, MAX_BUFFER, stdin) == NULL) {
+            printf("\n");
+            break;
+        }
 
-		parsear_linea(buffer, &cmd);
+        buffer[strcspn(buffer, "\n")] = '\0';
 
-		ejecutar_comando(&cmd);
+        if (strlen(buffer) == 0) {
+            continue;
+        }
 
-	}
-	return 0;
+        if (strcmp(buffer, "exit") == 0) {
+            printf("Saliendo de ucvsh...\n");
+            break;
+        }
+
+        total_comandos = 0;
+        parsear_linea(buffer, comandos, &total_comandos);
+
+        if (total_comandos > 0) {
+            ejecutar_cadena_comandos(comandos, total_comandos);
+        }
+    }
+    return 0;
 }
