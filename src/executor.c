@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <string.h>
 #include "executor.h"
 #include "path_resolver.h"
 #include "jobs.h"
@@ -16,7 +17,7 @@ int ejecutar_comando_individual(ComandoParsed *cmd, int fd_entrada, int fd_salid
         return -1;
     }
 
-    pid_t pid = fork(); [cite: 34]
+    pid_t pid = fork();
     if (pid < 0) {
         perror("ucvsh: Error en fork");
         free(ruta_ejecutable);
@@ -52,12 +53,16 @@ int ejecutar_comando_individual(ComandoParsed *cmd, int fd_entrada, int fd_salid
     free(ruta_ejecutable);
 
     if (cmd->es_background) {
-        agregar_job(pid, cmd->comando_principal); 
+        agregar_job(pid, cmd->comando_principal);
         return 0;
+    } else {
         int status;
-        waitpid(pid, &status, 0); 
+        if (waitpid(pid, &status, 0) < 0) {
+            perror("ucvsh: Error en waitpid");
+            return -1;
+        }
         if (WIFEXITED(status)) {
-            return WEXITSTATUS(status); 
+            return WEXITSTATUS(status);
         }
         return -1;
     }
@@ -68,7 +73,7 @@ int ejecutar_cadena_comandos(ComandoParsed comandos[], int total_comandos) {
     int i = 0;
 
     while (i < total_comandos) {
-        if (strcmp(comandos[i].comando_principal, "jobs") == 0) {
+        if (comandos[i].comando_principal != NULL && strcmp(comandos[i].comando_principal, "jobs") == 0) {
             listar_jobs(); 
             i++;
             continue;
@@ -86,11 +91,16 @@ int ejecutar_cadena_comandos(ComandoParsed comandos[], int total_comandos) {
 
         int fd_salida = es_pipe ? fd_pipe[1] : STDOUT_FILENO;
 
-        int resultado = ejecutar_comando_individual(&comandos[i], fd_entrada, fd_salida); [cite: 6]
+        int resultado = ejecutar_comando_individual(&comandos[i], fd_entrada, fd_salida);
 
-        if (fd_entrada != STDIN_FILENO) close(fd_entrada); 
-        if (es_pipe) close(fd_pipe[1]); 
+        if (fd_entrada != STDIN_FILENO) {
+        close(fd_entrada);
+        }
 
+        if (es_pipe) {
+        close(fd_pipe[1]); 
+        }
+        
         if (es_pipe) {
             fd_entrada = fd_pipe[0]; 
             i++;

@@ -17,7 +17,7 @@ void agregar_job(pid_t pid, const char *comando_txt) {
             tabla_jobs[i].pid = pid;
             strncpy(tabla_jobs[i].comando_txt, comando_txt, 255);
             tabla_jobs[i].activo = 1;
-            printf("[%d] %d\n", i + 1, pid); [cite: 76]
+            printf("[%d] %d\n", i + 1, pid); 
             return;
         }
     }
@@ -25,10 +25,10 @@ void agregar_job(pid_t pid, const char *comando_txt) {
 }
 
 void listar_jobs(void) {
-    limpiar_jobs_zombies(); [cite: 43]
+    limpiar_jobs_zombies();
     for (int i = 0; i < MAX_JOBS; i++) {
         if (tabla_jobs[i].activo) {
-            printf("[%d] En Ejecución\t%s &\n", i + 1, tabla_jobs[i].comando_txt); [cite: 48, 78]
+            printf("[%d] En Ejecución\t%s &\n", i + 1, tabla_jobs[i].comando_txt);
         }
     }
 }
