@@ -24,7 +24,7 @@ int ejecutar_comando_individual(ComandoParsed *cmd, int fd_entrada, int fd_salid
         return -1;
     }
 
-    if (pid == 0) { 
+    if (pid == 0) {
         if (fd_entrada != STDIN_FILENO) {
             dup2(fd_entrada, STDIN_FILENO);
             close(fd_entrada);
@@ -36,7 +36,7 @@ int ejecutar_comando_individual(ComandoParsed *cmd, int fd_entrada, int fd_salid
         }
 
         if (cmd->archivo_redireccion != NULL) {
-            int fd_file = open(cmd->archivo_redireccion, O_WRONLY | O_CREAT | O_TRUNC, 0644); 
+            int fd_file = open(cmd->archivo_redireccion, O_WRONLY | O_CREAT | O_TRUNC, 0644);
             if (fd_file < 0) {
                 perror("ucvsh: Error abriendo archivo de redireccion");
                 exit(EXIT_FAILURE);
@@ -48,12 +48,20 @@ int ejecutar_comando_individual(ComandoParsed *cmd, int fd_entrada, int fd_salid
         execv(ruta_ejecutable, cmd->argumentos);
         perror("ucvsh: Error en execv");
         exit(EXIT_FAILURE);
-    } 
-    
+    }
+
     free(ruta_ejecutable);
 
     if (cmd->es_background) {
-        agregar_job(pid, cmd->comando_principal);
+        char comando_completo[256] = "";
+        for (int i = 0; cmd->argumentos[i] != NULL; i++) {
+            strcat(comando_completo, cmd->argumentos[i]);
+            if (cmd->argumentos[i + 1] != NULL) {
+                strcat(comando_completo, " "); 
+            }
+        }
+
+        agregar_job(pid, comando_completo);
         return 0;
     } else {
         int status;
@@ -74,7 +82,7 @@ int ejecutar_cadena_comandos(ComandoParsed comandos[], int total_comandos) {
 
     while (i < total_comandos) {
         if (comandos[i].comando_principal != NULL && strcmp(comandos[i].comando_principal, "jobs") == 0) {
-            listar_jobs(); 
+            listar_jobs();
             i++;
             continue;
         }
@@ -94,25 +102,29 @@ int ejecutar_cadena_comandos(ComandoParsed comandos[], int total_comandos) {
         int resultado = ejecutar_comando_individual(&comandos[i], fd_entrada, fd_salida);
 
         if (fd_entrada != STDIN_FILENO) {
-        close(fd_entrada);
+            close(fd_entrada);
         }
 
         if (es_pipe) {
-        close(fd_pipe[1]); 
+            close(fd_pipe[1]);
         }
-        
+
         if (es_pipe) {
-            fd_entrada = fd_pipe[0]; 
+            fd_entrada = fd_pipe[0];
             i++;
         } else {
-            fd_entrada = STDIN_FILENO; 
-            
+            fd_entrada = STDIN_FILENO;
+
             if (comandos[i].operador_siguiente == OP_AND) {
-                if (resultado != 0) break; 
+                if (resultado != 0) {
+                    i++; 
+                }
             } else if (comandos[i].operador_siguiente == OP_OR) {
-                if (resultado == 0) break;
+                if (resultado == 0) {
+                    i++; 
+                }
             }
-            i++;
+            i++; 
         }
     }
     return 0;
