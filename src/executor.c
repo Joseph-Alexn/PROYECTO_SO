@@ -11,6 +11,25 @@
 int ejecutar_comando_individual(ComandoParsed *cmd, int fd_entrada, int fd_salida) {
     if (cmd->comando_principal == NULL) return -1;
 
+    if (strcmp(cmd->comando_principal, "cd") == 0) {
+        int status = 0;
+      
+        if (cmd->argumentos[1] == NULL) {
+            char *home = getenv("HOME");
+            if (home != NULL) {
+                status = chdir(home);
+            }
+        } else {
+            status = chdir(cmd->argumentos[1]);
+        }
+
+        if (status != 0) {
+            perror("ucvsh: cd"); 
+            return 1; 
+        }
+        return 0; 
+    }
+
     char *ruta_ejecutable = resolver_ruta(cmd->comando_principal);
     if (ruta_ejecutable == NULL) {
         fprintf(stderr, "ucvsh: %s: no se encontro la orden\n", cmd->comando_principal);
